@@ -1,0 +1,46 @@
+[project]
+name = "aio-bot-base"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "loguru>=0.7.3",
+    "pre-commit>=4.2.0",
+    "pydantic>=2.11.3",
+    "pydantic-settings>=2.8.1",
+]
+
+
+[tool.black]
+line-length = 79
+# skip_magic_trailing_comma = true
+target-version = ['py310']
+include = '\.pyi?$'
+
+[tool.pyright]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "db",
+    "media",
+    "logs",
+    "**/.*"
+]
+autoFormatStrings = true
+autoImportCompletions = true
+enableSyncServer = true
+diagnosticSeverityOverrides = {reportInvalidTypeForm = "warning"}
+indexing = true
+completeFunctionParens = true
+reportAttributeAccessIssue = "none"
+reportOptionalMemberAccess = "none"
+reportArgumentType = "warning"
+reportReturnType = "warning"
+reportCallIssue = "none"
+reportAssignmentType = "warning"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+]
