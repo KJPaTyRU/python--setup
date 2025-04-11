@@ -9,3 +9,23 @@ class AppException(Exception):
         message = ("[{code}] " + message).format(**self.details)
         self.details["message"] = message
         super().__init__(message)
+
+
+class DbException(AppException):
+    message: str = "Base Db Exception"
+    code: str = "200"
+
+
+class BadSchemaException(DbException):
+    message: str = "Got bad schema"
+    code: str = "201"
+
+
+class BadFilterException(DbException):
+    message: str = "Got bad filter"
+    code: str = "202"
+
+
+class BadCreateDataException(DbException):
+    message: str = "Got bad create data type"
+    code: str = "203"

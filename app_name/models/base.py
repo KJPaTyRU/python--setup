@@ -55,3 +55,10 @@ class DbLogMixin:
     log_time: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), server_default=func.now(), nullable=False
     )
+
+
+class CreatedAtMixin:
+    __abstract__ = True
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
