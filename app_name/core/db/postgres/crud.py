@@ -1,5 +1,5 @@
 from functools import cache
-from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from loguru import logger
 from sqlalchemy import (
@@ -55,7 +55,9 @@ class BulkCrudMixin:
         """can be used for config options with inload
         Update Example:
         ```
-        update(self._model).where(self._model.delete == false()).values(delete=true()).returning(self._model.id)
+        update(self._model).where(self._model.delete == false()).values(
+            delete=true()).returning(self._model.id
+        )
         ```
         """
         return delete(self._model)
