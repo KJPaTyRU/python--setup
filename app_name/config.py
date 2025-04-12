@@ -1,4 +1,4 @@
-from functools import cache
+from functools import cache, cached_property
 import sys
 from typing import Literal
 
@@ -35,12 +35,18 @@ class AuthSettings(AppBaseSettings):
 
 
 class AppSettings(AppBaseSettings):
-    is_debug: bool = False
+    isDebug: bool = False
+    show_swagger: bool = True
+    version: str = Field("1.0.0", pattern=r"^\d+\.\d+\.\d+$")
     # openssl rand -hex 32
     secret: str = Field(
         "31eca474397470ce766adf655fcdcd7417323d48dc9299e78ad043a8f456ed83",
         min_length=16,
     )
+
+    port: int = Field(8000, ge=0, lt=1 << 16)
+    host: str = "0.0.0.0"
+    workers: int = Field(1, ge=0)
 
     @computed_field
     @property
@@ -71,6 +77,19 @@ class Settings(AppBaseSettings):
             f"{self.db.host}:{self.db.port}"
             f"/{self.postgres.db}"
         )
+
+    @property
+    def uvicorn_kwargs(self) -> dict:
+        result = self.app.model_dump(include={"host", "port", "workers"})
+        return result
+
+    @cached_property
+    def logger_error_func(self):
+        return logger.exception if self.app.isDebug else logger.error
+
+    @cached_property
+    def logger_info_func(self):
+        return logger.exception if self.app.isDebug else logger.info
 
 
 class AlembicSettings(AppBaseSettings):
