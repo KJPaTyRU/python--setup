@@ -6,10 +6,20 @@ dist/
 wheels/
 *.egg-info
 
+# Docker extra
+docker-compose.yml
+Dockerfile
+Makefile
+README.md
+TODO.md
+
 # Virtual environments
 .venv
+.vscode
 .pytest_cache
-.env
+.env.example
+.pre-commit-config.yaml
 
 # local dirs
 db/
+tests/
