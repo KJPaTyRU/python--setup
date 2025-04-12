@@ -1,25 +1,33 @@
 {
-    // "python.formatting.provider": "ruff",
-    // "ruff.enable": true,
-    // "ruff.organizeImports": false,
-    // "ruff.configuration": "pyproject.toml",
-    // "[python]": { // python section
-    //     "editor.codeActionsOnSave": {
-    //         "source.fixAll": "explicit",
-    //         "source.organizeImports": "explicit"
-    //     },
-    //     "editor.rulers": [
-    //         79
-    //     ],
-    //     "editor.wordWrapColumn": 150,
-    //     "editor.formatOnSave": true,
-    //     "editor.parameterHints.enabled": false,
-    //     "editor.suggest.preview": false,
-    //     "editor.suggest.showDeprecated": false,
-    //     "editor.suggest.matchOnWordStartOnly": true,
-    //     "editor.suggest.localityBonus": true,
-    //     "editor.suggestOnTriggerCharacters": false,
-    //     "editor.formatOnType": false,
-    //     "editor.defaultFormatter": "charliermarsh.ruff"
-    // },
+    "files.exclude": {
+        ".venv": true,
+        ".pytest_cache": true
+    },
+    "python.analysis.packageIndexDepths": [
+        {
+            "name": "sqlalchemy",
+            "depth": 3,
+            "includeAllSymbols": true
+        },
+        {
+            "name": "fastapi",
+            "depth": 3,
+            "includeAllSymbols": true
+        },
+        {
+            "name": "pydantic",
+            "depth": 3,
+            "includeAllSymbols": true
+        },
+        {
+            "name": "app_name",
+            "depth": 6,
+            "includeAllSymbols": true
+        },
+    ],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

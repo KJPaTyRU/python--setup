@@ -24,6 +24,7 @@ repos:
     rev: 7.1.1
     hooks:
     -   id: flake8
+        exclude: tests/
         args: [--max-line-length=79]
 
 -   repo: https://github.com/pre-commit/pygrep-hooks

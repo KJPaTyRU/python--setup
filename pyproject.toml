@@ -5,10 +5,15 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "alembic>=1.15.2",
+    "asyncpg>=0.30.0",
     "loguru>=0.7.3",
+    "passlib[bcrypt]>=1.7.4",
     "pre-commit>=4.2.0",
     "pydantic>=2.11.3",
     "pydantic-settings>=2.8.1",
+    "pyjwt>=2.10.1",
+    "sqlalchemy>=2.0.40",
 ]
 
 
@@ -25,7 +30,8 @@ exclude = [
     "db",
     "media",
     "logs",
-    "**/.*"
+    "**/.*",
+    "tests"
 ]
 autoFormatStrings = true
 autoImportCompletions = true
@@ -43,4 +49,11 @@ reportAssignmentType = "warning"
 [dependency-groups]
 dev = [
     "black>=25.1.0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
 ]
+
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
