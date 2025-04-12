@@ -1,4 +1,5 @@
 # Base FastApi project
+
 ## Before development
 1) pip install uv
 2) uv add pre-commit

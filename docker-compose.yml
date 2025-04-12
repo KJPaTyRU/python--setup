@@ -2,6 +2,7 @@ x-apm_env: &base_env
   POSTGRES_DB: app_name
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
+  DB_HOST: db
   POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
 
 services:
@@ -17,6 +18,38 @@ services:
 
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      # interval: 10s
+      interval: 1s
       timeout: 5s
       retries: 5
+
+
+  app-init:
+    image: app_registry/app_name-backend:dev
+    restart: on-failure:5
+    environment:
+      <<: *base_env
+      MIGRATE: 1
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app-server:
+    image: app_registry/app_name-backend:dev
+    restart: always
+    build:
+      context: .
+    environment:
+      <<: *base_env
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    command: bash -c "uv run --no-dev main.py"
+    depends_on:
+      db:
+        condition: service_healthy
+      app-init:
+        condition: service_completed_successfully
