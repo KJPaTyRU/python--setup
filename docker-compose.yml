@@ -1,0 +1,22 @@
+x-apm_env: &base_env
+  POSTGRES_DB: app_name
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      <<: *base_env
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

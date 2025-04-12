@@ -28,7 +28,7 @@ class BaseDbModel(DeclarativeBase):
         return camel_to_snake(cls.__name__)
 
     @classmethod
-    def _get_prefix(cls):
+    def _get_prefix(cls) -> str:
         """StupidCAMelCase to stupid_ca_mel_case"""
         return "lm"
 
@@ -53,7 +53,7 @@ class UuidBaseDbModel(BaseDbModel):
 class DbLogMixin:
     __abstract__ = True
     log_time: Mapped[datetime.datetime] = mapped_column(
-        DateTime(True), server_default=func.now(), nullable=False
+        DateTime(True), server_default=func.now(), index=True, nullable=False
     )
 
 

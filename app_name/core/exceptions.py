@@ -29,3 +29,29 @@ class BadFilterException(DbException):
 class BadCreateDataException(DbException):
     message: str = "Got bad create data type"
     code: str = "203"
+
+
+# * Auth * #
+class AuthException(AppException):
+    message: str = "Base Auth Exception"
+    code: str = "300"
+
+
+class TokenParseError(AuthException):
+    message: str = "Got bad token"
+    code: str = "301"
+
+
+class BadTokenError(AuthException):
+    message: str = "Got bad token"
+    code: str = "302"
+
+
+class TokenValidationError(AuthException):
+    message: str = "Got bad token"
+    code: str = "303"
+
+
+class BadLoginCredsError(AuthException):
+    message: str = "Got bad login creds"
+    code: str = "304"

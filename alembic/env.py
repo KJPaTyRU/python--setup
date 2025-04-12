@@ -52,7 +52,6 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         include_schemas=True,
-        version_table_schema=target_metadata.schema,
         compare_type=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -82,6 +81,7 @@ async def run_async_migrations() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        future=True,
     )
 
     async with connectable.connect() as connection:

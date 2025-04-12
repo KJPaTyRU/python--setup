@@ -22,4 +22,31 @@
     //     "editor.formatOnType": false,
     //     "editor.defaultFormatter": "charliermarsh.ruff"
     // },
+    "python.analysis.packageIndexDepths": [
+        {
+            "name": "sqlalchemy",
+            "depth": 3,
+            "includeAllSymbols": true
+        },
+        {
+            "name": "fastapi",
+            "depth": 3,
+            "includeAllSymbols": true
+        },
+        {
+            "name": "pydantic",
+            "depth": 3,
+            "includeAllSymbols": true
+        },
+        {
+            "name": "app_name",
+            "depth": 6,
+            "includeAllSymbols": true
+        },
+    ],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

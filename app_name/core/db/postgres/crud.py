@@ -36,7 +36,7 @@ SQLWhereType = ColumnExpressionArgument[bool]
 SQLOrderByType = ColumnExpressionArgument[Any]
 
 
-def filters_to_wheres(model: type[ModelT], filters: dict[str, Any]):
+def filters_to_wheres(model: type[ModelT], filters: Any):
     res = []
     try:
         for k, v in filters.items():
@@ -114,7 +114,7 @@ class BulkCrudMixin:
         limit: int | None = None,
         order_by: list[SQLOrderByType] | None = None,
         unique: bool = False,
-        **filters: dict[str, Any],
+        **filters: Any,
     ) -> list[ModelT]:
         try:
             expressions = []
@@ -138,15 +138,27 @@ class BulkCrudMixin:
         except SQLAlchemyError as e:
             raise DbException() from e
 
-    async def bulk_create(
+    async def bulk_create_with_return(
         self: "BulkCrudMixin | CrudBase[ModelT, ModelCreateT]",
         session: AsyncSession,
         /,
         datas: list[dict[str, Any] | ModelCreateT],
     ) -> list[ModelT]:
+        """More requests..."""
+        insert_data = self.sync_create_schema_converter(datas)
+        stmt = insert(self._model).values(insert_data).returning(self._model)
+        return (await session.execute(stmt)).scalars().all()
+
+    async def bulk_create(
+        self: "BulkCrudMixin | CrudBase[ModelT, ModelCreateT]",
+        session: AsyncSession,
+        /,
+        datas: list[dict[str, Any] | ModelCreateT],
+    ) -> int:
         insert_data = self.sync_create_schema_converter(datas)
         stmt = insert(self._model).values(insert_data)
-        return (await session.execute(stmt)).scalars().all()
+        res = await session.execute(stmt)
+        return res.rowcount
 
     async def bulk_update(
         self: "BulkCrudMixin | CrudBase[ModelT, ModelCreateT]",
@@ -179,13 +191,14 @@ class BulkCrudMixin:
         self: "BulkCrudMixin | CrudBase[ModelT, ModelCreateT]",
         session: AsyncSession,
         /,
-        wheres: list[SQLWhereType],
+        wheres: list[SQLWhereType] | None = None,
         force: bool = False,
-        **filters: dict[str, Any],
+        **filters: Any,
     ) -> int:
         try:
             expressions = []
-            expressions.extend(wheres)
+            if wheres:
+                expressions.extend(wheres)
             if filters:
                 expressions.extend(filters_to_wheres(self._model, filters))
             stmt = self._delete_stmt.where(*expressions)
@@ -247,16 +260,16 @@ class CrudBase(BulkCrudMixin, Generic[ModelT, ModelCreateT]):
         self,
         session: AsyncSession,
         /,
-        wheres: list[SQLWhereType],
-        **filters: dict[str, Any],
+        wheres: list[SQLWhereType] | None = None,
+        **filters: Any,
     ) -> ModelT | None:
         try:
             expressions = []
-            expressions.extend(wheres)
+            if wheres:
+                expressions.extend(wheres)
             if filters:
                 expressions.extend(filters_to_wheres(self._model, filters))
             stmt = self._select_model.where(*expressions)
-
             res = (await session.execute(stmt)).scalar_one_or_none()
             return res
         except AppException:
@@ -268,12 +281,13 @@ class CrudBase(BulkCrudMixin, Generic[ModelT, ModelCreateT]):
         self,
         session: AsyncSession,
         /,
-        wheres: list[SQLWhereType],
-        **filters: dict[str, Any],
+        wheres: list[SQLWhereType] | None = None,
+        **filters: Any,
     ) -> ModelT:
         try:
             expressions = []
-            expressions.extend(wheres)
+            if wheres:
+                expressions.extend(wheres)
             if filters:
                 expressions.extend(filters_to_wheres(self._model, filters))
             stmt = self._select_model.where(*expressions)

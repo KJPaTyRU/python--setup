@@ -7,10 +7,8 @@ Create Date: ${create_date}
 """
 from typing import Sequence, Union
 
-import loguru
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import insert
 
 ${imports if imports else ""}
 
