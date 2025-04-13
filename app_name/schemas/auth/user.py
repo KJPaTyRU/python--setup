@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from pydantic import Field, ValidationError, model_validator
+from pydantic import Field, model_validator
 from app_name.schemas.auth.token import JwtTokenSchema
 from app_name.schemas.auth.types import PasswordStr, UserNameStr
 from app_name.schemas.base import OrmModel
@@ -15,7 +15,7 @@ class UserRegister(OrmModel):
     @model_validator(mode="after")
     def val_model(self):
         if self.password1 != self.password2:
-            raise ValidationError("password1 != password2")
+            raise ValueError("password1 != password2")
         return self
 
     def to_db_schema(self) -> "UserCreate":
@@ -61,8 +61,8 @@ class UserFullRead(OrmModel):
 
 
 class UserUpdate(OrmModel):
-    password1: PasswordStr | None = None
-    password2: PasswordStr | None = None
+    password1: PasswordStr | None = Field(None, exclude=True)
+    password2: PasswordStr | None = Field(None, exclude=True)
     is_admin: bool | None = None
     is_active: bool | None = None
 
@@ -71,19 +71,32 @@ class UserUpdate(OrmModel):
         if (self.password1 is None and self.password2 is not None) or (
             self.password1 is not None and self.password2 is None
         ):
-            raise ValidationError("password1 and password2 must be filled")
+            raise ValueError("password1 and password2 must be filled")
         if (
             self.password1 is not None
             and self.password2 is not None
             and self.password1 != self.password2
         ):
-            raise ValidationError("password1 != password2")
+            raise ValueError("password1 != password2")
         return self
+
+    def to_patch(self) -> dict:
+        ret = self.model_dump(mode="python", exclude_unset=True)
+        if (
+            self.password1
+            and self.password2
+            and self.password1 == self.password2
+        ):
+            ret["password_hash"] = PwdContext.hash(self.password1)
+        return ret
 
 
 class UserMeUpdate(OrmModel):
     password1: PasswordStr
     password2: PasswordStr
+
+    def to_patch(self) -> dict:
+        return UserUpdate.model_validate(self).to_patch()
 
 
 class UserSession(OrmModel):
