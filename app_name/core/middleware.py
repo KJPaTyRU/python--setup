@@ -23,9 +23,13 @@ async def catch_db_excetptions_middleware(
 
     except AppException as e:
         _INFO_FUNC("{} | {} | {}", e.__class__.__name__, e.status, e.code)
+        try:
+            body = await request.body()
+        except Exception:
+            body = b""
         logger.debug(
             f"{e.__class__.__name__} | {e.status} |"
-            f" {dict(request.headers.items())}"
+            f" {dict(request.headers.items())} | {body}"
         )
         return JSONResponse(jsonable_encoder(e.details), status_code=e.status)
     except BaseException:
