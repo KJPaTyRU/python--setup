@@ -2,6 +2,7 @@ from fastapi import Request, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from loguru import logger
+from pydantic import ValidationError
 
 from app_name.config import get_settings
 from app_name.core.exceptions import AppException
@@ -21,6 +22,16 @@ async def catch_db_excetptions_middleware(
         )
         return resp
 
+    except ValidationError as e:
+        try:
+            body = await request.body()
+        except Exception:
+            body = b""
+        logger.debug(
+            f"{e.__class__.__name__} | 422 |"
+            f" {dict(request.headers.items())} | {body}"
+        )
+        return JSONResponse(jsonable_encoder(e.errors()), status_code=422)
     except AppException as e:
         _INFO_FUNC("{} | {} | {}", e.__class__.__name__, e.status, e.code)
         try:

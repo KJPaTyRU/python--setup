@@ -229,6 +229,14 @@ class CrudBase(BulkCrudMixin, Generic[ModelT, ModelCreateT]):
         """can be used for config options with inload"""
         return select(self._model)
 
+    @property
+    def model(self) -> type[ModelT]:
+        return self._model
+
+    @model.setter
+    def model(self, v):
+        raise ValueError("Cannot set value to model")
+
     async def create(
         self,
         session: AsyncSession,
