@@ -14,7 +14,7 @@ DbEngine = create_async_engine(
 SessionMaker = async_sessionmaker(DbEngine, expire_on_commit=False)
 
 
-async def async_session() -> AsyncGenerator[AsyncSession, None]:
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
     async with SessionMaker() as session:
         yield session
 

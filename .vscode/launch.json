@@ -18,6 +18,9 @@
                 "8015",
                 "--reload"
             ],
+            "env": {
+                "APP_PORT":"8015"
+            },
             "justMyCode": false,
             "jinja": true
         }

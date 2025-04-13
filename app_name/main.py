@@ -17,7 +17,9 @@ async def lifespan(_: FastAPI):
     import time
 
     time.tzset()
-    logger.info("[Server] Inited")
+    logger.info(
+        "[Server] Inited at `http://localhost:{}`", get_settings().app.port
+    )
     yield
     logger.info("[Server] Stopped")
 
