@@ -1,3 +1,4 @@
+from functools import cache
 from sqlalchemy import Select
 from typing_extensions import Self
 from fastapi import Query
@@ -25,3 +26,8 @@ class AlchemyBasePaginator(BasePaginator):
             return stmt
         rparams = self.page2offset(self.cur_params)
         return stmt.offset(rparams.offset).limit(rparams.limit)
+
+
+@cache
+def paginator1000() -> AlchemyBasePaginator:
+    return AlchemyBasePaginator(1000)

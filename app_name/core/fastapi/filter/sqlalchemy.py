@@ -3,6 +3,7 @@ from functools import cache
 from typing import TYPE_CHECKING, Any, Callable, Sequence
 from loguru import logger
 from sqlalchemy import Column, Select, Table
+from sqlalchemy.orm import DeclarativeBase
 from app_name.core.fastapi.filter.base import BaseFilter, BaseFilterSchema
 
 if TYPE_CHECKING:
@@ -32,9 +33,9 @@ class KeyType:
 
 @dataclass
 class FilterContext:
-    m: Table
+    m: type[Table | DeclarativeBase]
     stmt: Select
-    wheres: list[SQLWhereType] = dc_field(default_factory=list)
+    wheres: list["SQLWhereType"] = dc_field(default_factory=list)
 
 
 # * FUNCS * #
@@ -148,7 +149,7 @@ class AlchemyBaseFilter(BaseFilter):
 
     def filter(
         self,
-        model: Table,
+        model: type[Table | DeclarativeBase],
         stmt: Select,
         filters: BaseFilterSchema,
         *args,
@@ -171,3 +172,8 @@ class AlchemyBaseFilter(BaseFilter):
                 op_map[key.operator](ctx, key, value)
         stmt = stmt.where(*ctx.wheres)
         return stmt
+
+
+@cache
+def get_AlchemyFilter() -> AlchemyBaseFilter:
+    return AlchemyBaseFilter()
