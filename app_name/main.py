@@ -66,7 +66,6 @@ def create_app():
         async def docs_redirect():
             return RedirectResponse(prefix + "/docs")
 
-    # app.middleware("http")(catch_db_excetptions_middleware)
     app.mount(prefix, sub_app)
 
     return app

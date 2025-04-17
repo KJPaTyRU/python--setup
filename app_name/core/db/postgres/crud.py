@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from loguru import logger
 from sqlalchemy import (
+    Column,
     ColumnExpressionArgument,
     CursorResult,
     Delete,
@@ -10,6 +11,7 @@ from sqlalchemy import (
     Update,
     bindparam,
     delete,
+    func,
     select,
     update,
 )
@@ -218,6 +220,28 @@ class BulkCrudMixin:
             raise DbException() from e
 
 
+class BoundDateMixin:
+    bond_date_enabled: bool = True
+    MIN_DATE_SQL_LABEL = "x_min_date"
+    MAX_DATE_SQL_LABEL = "x_max_date"
+
+    @cache
+    def get_boundate_field(self: "CrudBase | BoundDateMixin") -> Column:
+        if hasattr(self.model, "log_time"):
+            return self.model.log_time
+        elif hasattr(self.model, "created_at"):
+            return self.model.created_at
+        raise NotImplementedError()
+
+    def date_bounds(self: "CrudBase | BoundDateMixin") -> Select:
+        col = self.get_boundate_field()
+        bd_stmt = select(
+            func.min(col).label(self.MIN_DATE_SQL_LABEL),
+            func.max(col).label(self.MAX_DATE_SQL_LABEL),
+        )
+        return bd_stmt
+
+
 class OrderingMixin:
     @cache
     def ordering_fields(self) -> list[str]:
@@ -236,7 +260,9 @@ class OrderingMixin:
         return self._ordering_meta
 
 
-class CrudBase(BulkCrudMixin, OrderingMixin, Generic[ModelT, ModelCreateT]):
+class CrudBase(
+    BulkCrudMixin, OrderingMixin, BoundDateMixin, Generic[ModelT, ModelCreateT]
+):
 
     def __init__(self, settings: "Settings"):
         self.settings = settings

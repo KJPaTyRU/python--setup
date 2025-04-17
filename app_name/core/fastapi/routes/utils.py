@@ -1,5 +1,7 @@
+import datetime
 import uuid
 from fastapi import Query, Response
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,6 +19,20 @@ BOUND_DATE_FROM_HEADER = "X-Date-From"
 BOUND_DATE_TILL_HEADER = "X-Date-Till"
 
 
+class BaseHeaderDate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    x_max_date: datetime.datetime | None = Field(
+        serialization_alias=BOUND_DATE_TILL_HEADER
+    )
+    x_min_date: datetime.datetime | None = Field(
+        serialization_alias=BOUND_DATE_FROM_HEADER
+    )
+
+    @property
+    def headers(self):
+        return self.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
 def get_int_ids_query(ids: set[int] = Query(min_length=1)) -> set[int]:
     return ids
 
@@ -28,9 +44,20 @@ def get_uuid_ids_query(
 
 
 async def get_bound_dates(
-    session: AsyncSession, stmt: Select, crud: CrudBase[ModelT, ModelCreateT]
-) -> ...:
-    pass
+    session: AsyncSession,
+    crud: CrudBase[ModelT, ModelCreateT],
+    filter_schema: BaseFilterSchema,
+    filter_class: AlchemyBaseFilter = get_AlchemyFilter(),
+) -> BaseHeaderDate:
+    """
+    Returns:
+        tuple(date-from, date-till)
+    """
+    bd_stmt = crud.date_bounds()
+    bd_stmt = filter_class.filter(crud._model, bd_stmt, filter_schema)
+
+    res = (await session.execute(bd_stmt)).first()
+    return BaseHeaderDate.model_validate(res)
 
 
 async def get_count(session: AsyncSession, stmt: Select) -> int:
@@ -59,11 +86,12 @@ async def model_get(
         response.headers[TOTAL_COUNT_HEADER] = str(
             await get_count(session, stmt)
         )
-    if add_bound_date_header:
-        # TODO: Add real realization
-        datas = await get_bound_dates(session, stmt, crud)
-        response.headers[BOUND_DATE_FROM_HEADER] = str(datas[0])
-        response.headers[BOUND_DATE_TILL_HEADER] = str(datas[1])
+    if add_bound_date_header and crud.bond_date_enabled:
+        boarders = await get_bound_dates(
+            session, crud, filter_schema, filter_class
+        )
+        response.headers.update(boarders.headers)
+
     stmt = ordering.order(stmt)
     stmt = paginator.paginate(stmt)
     ret_objs = (await session.execute(stmt)).scalars().all()

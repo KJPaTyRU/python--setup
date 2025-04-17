@@ -42,30 +42,6 @@ def user_router() -> APIRouter:
     return router
 
 
-@router.get("/users-counts")
-async def get_users_counts(
-    response: Response,
-    user: UserSession = Depends(get_active_superuser_dep),
-    session: AsyncSession = Depends(db_session),
-    crud: UserCrud = Depends(get_user_crud),
-    paginator: AlchemyBasePaginator = Depends(paginator1000),
-    ordering: AlchOrderConsturctor = OrderingDepends(
-        get_user_crud().get_ordering_meta()
-    ),
-    filter_schema: UserFilter = FilterDepends(UserFilter),
-) -> list[UserFullRead]:
-    return await model_get(
-        response,
-        session,
-        crud,
-        paginator,
-        ordering,
-        filter_schema,
-        add_bound_date_header=False,
-        add_total_count_header=False,
-    )  # type: ignore
-
-
 @router.get("/users")
 async def get_users(
     response: Response,
@@ -79,13 +55,7 @@ async def get_users(
     filter_schema: UserFilter = FilterDepends(UserFilter),
 ) -> list[UserFullRead]:
     return await model_get(
-        response,
-        session,
-        crud,
-        paginator,
-        ordering,
-        filter_schema,
-        add_bound_date_header=False,
+        response, session, crud, paginator, ordering, filter_schema
     )  # type: ignore
 
 

@@ -33,6 +33,9 @@ class KeyType:
 
 @dataclass
 class FilterContext:
+    # NOTE: If there is an easy way to convert untyped dict to object
+    # u can pass it as Table :-D (I don't want making dict extra checking in
+    # f_operators)
     m: type[Table | DeclarativeBase]
     stmt: Select
     wheres: list["SQLWhereType"] = dc_field(default_factory=list)
