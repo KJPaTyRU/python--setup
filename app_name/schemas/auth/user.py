@@ -81,7 +81,9 @@ class UserUpdate(OrmModel):
         return self
 
     def to_patch(self) -> dict:
-        ret = self.model_dump(mode="python", exclude_unset=True)
+        ret = self.model_dump(
+            mode="python", exclude_unset=True, exclude_none=True
+        )
         if (
             self.password1
             and self.password2
@@ -100,5 +102,6 @@ class UserMeUpdate(OrmModel):
 
 
 class UserSession(OrmModel):
+    raw_token: str
     token: JwtTokenSchema  # NOTE: Injection FUCK
     user: UserFullRead

@@ -285,6 +285,3 @@ async def test_not_found_token_for_active_user(
     except BadTokenError:
         got = True
     assert got
-
-
-# TODO: test_expired_active_user

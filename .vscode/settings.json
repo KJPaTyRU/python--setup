@@ -1,7 +1,9 @@
 {
     "files.exclude": {
         ".venv": true,
-        ".pytest_cache": true
+        ".pytest_cache": true,
+        "app_name/core/swagger/swagger-ui-bundle.js": true,
+        "app_name/core/swagger/swagger-ui.css": true,
     },
     "python.analysis.packageIndexDepths": [
         {

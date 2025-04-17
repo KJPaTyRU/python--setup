@@ -1,9 +1,14 @@
 from functools import cache
+from typing import Annotated
 
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app_name.config import get_settings
 from app_name.core.crypto.passwords.base import PwdContext
+from app_name.core.db.postgres.base import db_session
 from app_name.core.exceptions import BadTokenError
 from app_name.cruds.auth.user import get_user_crud
 from app_name.models.auth.user import User
@@ -50,3 +55,30 @@ async def get_active_superuser(
     if not user.user.is_admin:
         raise BadTokenError()
     return user
+
+
+# FastApi #
+BeareAuth = OAuth2PasswordBearer(
+    tokenUrl=get_settings().app.uri_auth_prefix,
+    description="Beare (JWT) Auth",
+    auto_error=False,
+)
+BeareAuthCreds = Annotated[str | None, Depends(BeareAuth)]
+
+
+async def get_active_user_dep(
+    token: BeareAuthCreds, session: AsyncSession = Depends(db_session)
+) -> UserSession:
+    if token is None:
+        logger.debug("[Auth] Got incorrect Authorization header: {}", token)
+        raise BadTokenError()
+    return await get_active_user(session, token)
+
+
+async def get_active_superuser_dep(
+    token: BeareAuthCreds, session: AsyncSession = Depends(db_session)
+) -> UserSession:
+    if token is None:
+        logger.debug("[Auth] Got incorrect Authorization header: {}", token)
+        raise BadTokenError()
+    return await get_active_superuser(session, token)

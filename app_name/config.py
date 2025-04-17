@@ -53,6 +53,16 @@ class AppSettings(AppBaseSettings):
     def app_name(self) -> str:
         return "app_name"
 
+    @computed_field
+    @property
+    def uri_prefix(self) -> str:
+        return f"/api/{self.app_name}/v1"
+
+    @computed_field
+    @property
+    def uri_auth_prefix(self) -> str:
+        return f"{self.uri_prefix}/auth/login-form"
+
 
 class LoggingSettings(AppBaseSettings):
     level: Literal[levels] = "DEBUG"  # type: ignore

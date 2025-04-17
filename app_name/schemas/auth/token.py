@@ -40,14 +40,22 @@ class JwtTokenSchema(BaseJwtToken, UserTokenExtra):
     def token_id(self) -> uuid.UUID:
         return self.jti
 
+    def token_type(self) -> BearerTokenTypeEnum:
+        return self.ttype
+
     def to_payload(self) -> dict:
         ret = self.model_dump(mode="json", exclude={"exp", "iat"})
         ret["exp"] = int(self.exp.timestamp())
-        ret["iat"] = int(self.exp.timestamp())
+        ret["iat"] = int(self.iat.timestamp())
         return ret
 
 
 class TokenPair(OrmModel):
     access_token: str
+    refresh_token: str
+    type: str = "Bearer"
+
+
+class RefreshToken(OrmModel):
     refresh_token: str
     type: str = "Bearer"

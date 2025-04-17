@@ -155,6 +155,7 @@ class AlchemyBaseFilter(BaseFilter):
         *args,
         **kwargs,
     ):
+        # TODO: No model - any labeled fields filter
         ctx = FilterContext(model, stmt)
         op_map = self._get_filter2operator()
         func_map = filters.func_map()

@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 from loguru import logger
 
 from app_name.config import get_settings
-from app_name.core.middleware import catch_db_excetptions_middleware
+from app_name.core.middleware import add_catch_excpetion_middlware
 from app_name.core.swagger.swagger import (
     add_custom_swagger,
     init_swagger_routes,
@@ -34,7 +34,7 @@ def main_sub_app():
         redoc_url=None,
     )
     app.include_router(main_router)
-    app.middleware("http")(catch_db_excetptions_middleware)
+    add_catch_excpetion_middlware(app)
 
     return app
 
@@ -49,7 +49,7 @@ def create_app():
         docs_url=None,
         redoc_url=None,
     )
-    prefix = "/api/app_name/v1"
+    prefix = settings.app.uri_prefix
     sub_app = main_sub_app()
 
     if settings.app.show_swagger:
@@ -66,7 +66,7 @@ def create_app():
         async def docs_redirect():
             return RedirectResponse(prefix + "/docs")
 
-    app.middleware("http")(catch_db_excetptions_middleware)
+    # app.middleware("http")(catch_db_excetptions_middleware)
     app.mount(prefix, sub_app)
 
     return app

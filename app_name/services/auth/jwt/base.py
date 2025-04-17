@@ -51,21 +51,23 @@ class JwtAuthLogic(AuthLogic):
                 algorithms=[self.algorithm],
                 audience=self.aud,
                 issuer=self.iss,
-                leeway=get_leeway(),
+                verify=True,
+                # leeway=get_leeway(),
             )
             logger.debug(f"{data=}")
             return JwtTokenSchema.model_validate(data)
         except Exception as e:
-            logger.exception("Token parse error")
+            logger.debug("Token parse error")
             raise TokenParseError(token=token) from e
 
     def validate(
         self,
         token: JwtTokenSchema,
         user_session: UserFullRead,
+        raw_token: str,
         *args,
         **kwargs,
     ) -> UserSession:
         if user_session.password_updated_at > token.iat:
             raise TokenValidationError()
-        return UserSession(token=token, user=user_session)
+        return UserSession(token=token, raw_token=raw_token, user=user_session)
