@@ -9,6 +9,7 @@ from app_name.core.fastapi.filter.sqlalchemy import (
     AlchemyBaseFilter,
     get_AlchemyFilter,
 )
+from app_name.core.fastapi.ordering.sqlalchemy import AlchOrderConsturctor
 from app_name.core.fastapi.pagination.sqlalchemy import AlchemyBasePaginator
 
 TOTAL_COUNT_HEADER = "X-Total-Count"
@@ -32,11 +33,7 @@ async def get_bound_dates(
     pass
 
 
-async def get_count(
-    session: AsyncSession,
-    stmt: Select,
-    crud: CrudBase[ModelT, ModelCreateT],  # TODO: Remove?
-) -> int:
+async def get_count(session: AsyncSession, stmt: Select) -> int:
     count_stmt = select(func.count()).select_from(stmt.subquery("count_sq"))
     return (await session.execute(count_stmt)).scalar_one()
 
@@ -46,6 +43,7 @@ async def model_get(
     session: AsyncSession,
     crud: CrudBase[ModelT, ModelCreateT],
     paginator: AlchemyBasePaginator,
+    ordering: AlchOrderConsturctor,
     filter_schema: BaseFilterSchema,
     /,
     add_total_count_header: bool = True,
@@ -59,14 +57,14 @@ async def model_get(
     stmt = filter_class.filter(crud._model, stmt, filter_schema)
     if add_total_count_header:
         response.headers[TOTAL_COUNT_HEADER] = str(
-            await get_count(session, stmt, crud)
+            await get_count(session, stmt)
         )
     if add_bound_date_header:
         # TODO: Add real realization
         datas = await get_bound_dates(session, stmt, crud)
         response.headers[BOUND_DATE_FROM_HEADER] = str(datas[0])
         response.headers[BOUND_DATE_TILL_HEADER] = str(datas[1])
-    # TODO: Paste ordering here
+    stmt = ordering.order(stmt)
     stmt = paginator.paginate(stmt)
     ret_objs = (await session.execute(stmt)).scalars().all()
 

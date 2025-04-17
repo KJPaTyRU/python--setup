@@ -7,6 +7,8 @@ from app_name.config import get_settings
 from app_name.core.crypto.passwords.base import PwdContext
 from app_name.core.db.postgres.base import db_session
 from app_name.core.fastapi.filter.depends import FilterDepends
+from app_name.core.fastapi.ordering.current import OrderingDepends
+from app_name.core.fastapi.ordering.sqlalchemy import AlchOrderConsturctor
 from app_name.core.fastapi.pagination.sqlalchemy import (
     AlchemyBasePaginator,
     paginator1000,
@@ -40,13 +42,16 @@ def user_router() -> APIRouter:
     return router
 
 
-@router.get("/users")
-async def get_users(
+@router.get("/users-counts")
+async def get_users_counts(
     response: Response,
     user: UserSession = Depends(get_active_superuser_dep),
     session: AsyncSession = Depends(db_session),
     crud: UserCrud = Depends(get_user_crud),
     paginator: AlchemyBasePaginator = Depends(paginator1000),
+    ordering: AlchOrderConsturctor = OrderingDepends(
+        get_user_crud().get_ordering_meta()
+    ),
     filter_schema: UserFilter = FilterDepends(UserFilter),
 ) -> list[UserFullRead]:
     return await model_get(
@@ -54,6 +59,31 @@ async def get_users(
         session,
         crud,
         paginator,
+        ordering,
+        filter_schema,
+        add_bound_date_header=False,
+        add_total_count_header=False,
+    )  # type: ignore
+
+
+@router.get("/users")
+async def get_users(
+    response: Response,
+    user: UserSession = Depends(get_active_superuser_dep),
+    session: AsyncSession = Depends(db_session),
+    crud: UserCrud = Depends(get_user_crud),
+    paginator: AlchemyBasePaginator = Depends(paginator1000),
+    ordering: AlchOrderConsturctor = OrderingDepends(
+        get_user_crud().get_ordering_meta()
+    ),
+    filter_schema: UserFilter = FilterDepends(UserFilter),
+) -> list[UserFullRead]:
+    return await model_get(
+        response,
+        session,
+        crud,
+        paginator,
+        ordering,
         filter_schema,
         add_bound_date_header=False,
     )  # type: ignore

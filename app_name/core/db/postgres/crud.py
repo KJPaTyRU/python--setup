@@ -27,6 +27,9 @@ from app_name.models.base import BaseDbModel
 from app_name.schemas.base import OrmModel
 
 if TYPE_CHECKING:
+    from app_name.core.fastapi.ordering.sqlalchemy import (
+        AlchCrudedOrderingMeta,
+    )
     from app_name.config import Settings
 
 ModelT = TypeVar("ModelT", bound=BaseDbModel)
@@ -215,7 +218,25 @@ class BulkCrudMixin:
             raise DbException() from e
 
 
-class CrudBase(BulkCrudMixin, Generic[ModelT, ModelCreateT]):
+class OrderingMixin:
+    @cache
+    def ordering_fields(self) -> list[str]:
+        return ["id"]
+
+    @cache
+    def default_order(self) -> list[str]:
+        return ["-id"]
+
+    def set_ordering_meta(self, ordering_meta: "AlchCrudedOrderingMeta"):
+        self._ordering_meta: "AlchCrudedOrderingMeta" = ordering_meta
+
+    def get_ordering_meta(self) -> "AlchCrudedOrderingMeta":
+        if not hasattr(self, "_ordering_meta") or not self._ordering_meta:
+            raise NotImplementedError()
+        return self._ordering_meta
+
+
+class CrudBase(BulkCrudMixin, OrderingMixin, Generic[ModelT, ModelCreateT]):
 
     def __init__(self, settings: "Settings"):
         self.settings = settings
@@ -359,9 +380,3 @@ class CrudBase(BulkCrudMixin, Generic[ModelT, ModelCreateT]):
             raise
         except SQLAlchemyError as e:
             raise DbException() from e
-
-
-"""
-class UserModel(CrudBase[User, UserCreateSchema])
-    pass
-"""
