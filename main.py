@@ -1,11 +1,11 @@
 import sys
 
-from app_name.config import get_settings
+from proj_name.config import get_settings
 import uvicorn
 
 
 def run_uvicorn(run_args: dict):
-    uvicorn.run("app_name.main:create_app", **run_args)
+    uvicorn.run("proj_name.main:create_app", **run_args)
 
 
 def main():

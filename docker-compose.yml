@@ -1,5 +1,5 @@
 x-apm_env: &base_env
-  POSTGRES_DB: app_name
+  POSTGRES_DB: proj_name
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
   DB_HOST: db
@@ -25,7 +25,7 @@ services:
 
 
   app-init:
-    image: app_registry/app_name-backend:dev
+    image: app_registry/proj_name-backend:dev
     restart: on-failure:5
     environment:
       <<: *base_env
@@ -37,7 +37,7 @@ services:
         condition: service_healthy
 
   app-server:
-    image: app_registry/app_name-backend:dev
+    image: app_registry/proj_name-backend:dev
     restart: always
     build:
       context: .

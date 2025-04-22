@@ -11,9 +11,9 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-from app_name.core.crypto.passwords.base import PwdContext
-from app_name.models.auth.user import User
-from app_name.schemas.auth.user import UserCreate, UserRawCreate
+from proj_name.core.crypto.passwords.base import PwdContext
+from proj_name.models.auth.user import User
+from proj_name.schemas.auth.user import UserCreate, UserRawCreate
 
 # revision identifiers, used by Alembic.
 revision: str = "4a4b4bd09916"

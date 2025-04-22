@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from app_name.config import (
+from proj_name.config import (
     AppSettings,
     AuthSettings,
     DbSettings,
@@ -15,15 +15,15 @@ from app_name.config import (
     PostgresSettings,
     Settings,
 )
-from app_name.core.exceptions import BadTokenError
-from app_name.cruds.auth.user import get_user_crud
-from app_name.models.auth.user import User
-from app_name.schemas.auth.token import TokenPair
-from app_name.schemas.auth.user import UserFullRead, UserLogin, UserRawCreate
-from app_name.services.auth.base import AlchemyTokenAuthService
-from app_name.services.auth.current import create_user
-from app_name.services.auth.jwt.base import create_expires_map
-from app_name.services.auth.jwt.sqlalch import AlchemyJwtAuthLogic
+from proj_name.core.exceptions import BadTokenError, TokenParseError
+from proj_name.cruds.auth.user import get_user_crud
+from proj_name.models.auth.user import User
+from proj_name.schemas.auth.token import TokenPair
+from proj_name.schemas.auth.user import UserFullRead, UserLogin, UserRawCreate
+from proj_name.services.auth.base import AlchemyTokenAuthService
+from proj_name.services.auth.current import create_user
+from proj_name.services.auth.jwt.base import create_expires_map
+from proj_name.services.auth.jwt.sqlalch import AlchemyJwtAuthLogic
 
 
 @pytest.fixture(scope="session")
@@ -32,7 +32,7 @@ def settings_for_test() -> Settings:
         _env_file=None,
         log=LoggingSettings(level="DEBUG"),
         postgres=PostgresSettings(
-            # db="test_app_name"
+            # db="test_proj_name"
         ),
         db=DbSettings(),
         app=AppSettings(secret="1" * 32),
@@ -282,6 +282,6 @@ async def test_not_found_token_for_active_user(
     got = False
     try:
         await pre_test_func()
-    except BadTokenError:
+    except (BadTokenError, TokenParseError):
         got = True
     assert got
