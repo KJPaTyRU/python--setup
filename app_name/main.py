@@ -5,6 +5,7 @@ from loguru import logger
 
 from app_name.config import get_settings
 from app_name.core.middleware import add_catch_excpetion_middlware
+from app_name.core.socketio.fastapi import add_sio_to_fastapi
 from app_name.core.swagger.swagger import (
     add_custom_swagger,
     init_swagger_routes,
@@ -68,4 +69,5 @@ def create_app():
 
     app.mount(prefix, sub_app)
 
+    add_sio_to_fastapi(app)
     return app
