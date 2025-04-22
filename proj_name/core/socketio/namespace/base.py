@@ -87,5 +87,5 @@ class BaseSioNamespace(socketio.AsyncNamespace, Generic[SioCtxType]):
         return self._ctx_class.model_validate(await self.get_session(sid))
 
     async def clear_context(self, sid: str):
-        # TODO: How to clear it???
+        # TODO: How to clear this???
         await self.save_session(sid, {})
