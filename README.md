@@ -11,8 +11,8 @@
  происходить подключение к socket.io серверу (на него влияют mount,
  proxy). Для кастомного путь питонячегого socket.io сервера (в связке с
  fastapi) необходимо в ASGIApp указывать socketio_path равный prefix в
- FastAPI.mount. К строке с кастомным путем НЕ НАДО добавлять socket.io
- - оно автоматом добавится (т.е. если socketio_path='/very/strange/
+ FastAPI.mount. К строке с кастомным путем НЕ НАДО добавлять socket.io -
+ оно автоматом добавится (т.е. если socketio_path='/very/strange/
  path' JS клиентам надо подключаться по '/very/strange/path/socket.io')
 
 ## Before development

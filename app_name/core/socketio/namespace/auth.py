@@ -62,6 +62,7 @@ class BaseAuthNamespace(BaseSioNamespace[AuthSioCtxType]):
         )
         token = None
         try:
+            # TODO: add auth from query or header (for Postman). And debugcheck
             token = self.token_from_auth(sid, auth)
             if not token:
                 return await self.disconnect(sid)
