@@ -1,5 +1,5 @@
 FROM python:3.10-slim-bookworm AS libs
-
+ENV XDG_BIN_HOME=/usr/local/bin
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
 # Download the latest installer
@@ -16,3 +16,4 @@ RUN uv sync --no-dev
 COPY . ./
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
+CMD ["uv", "run", "--no-dev", "main.py"]
