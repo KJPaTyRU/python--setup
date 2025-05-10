@@ -1,44 +1,12 @@
-from dataclasses import dataclass, field as dc_field
 from functools import cache
-from typing import TYPE_CHECKING, Any, Callable, Sequence
+from typing import Any, Callable, Sequence
 from loguru import logger
 from sqlalchemy import Column, Select, Table
 from sqlalchemy.orm import DeclarativeBase
 from proj_name.core.fastapi.filter.base import BaseFilter, BaseFilterSchema
-
-if TYPE_CHECKING:
-    from proj_name.core.db.postgres.crud import SQLWhereType
+from proj_name.core.fastapi.filter.common import FilterContext, KeyType
 
 # A little bit messsy, but very flexible way of setting filtering logic
-
-
-class KeyType:
-    def __init__(self, raw_key: str):
-        self.raw_key = raw_key
-        self.column_key: str = ""
-        self.columns: list[str] = []
-        self.operator: str = ""
-
-        datas = self.raw_key.split("__")
-        if len(datas) == 1:
-            self.column_key = datas[0]
-            self.columns = []
-        elif len(datas) >= 2:
-            self.column_key = datas[-2]
-            self.columns = datas[:-1]
-            self.operator = datas[-1]
-        else:
-            raise ValueError("Got bad raw_key `{}`", self.raw_key)
-
-
-@dataclass
-class FilterContext:
-    # NOTE: If there is an easy way to convert untyped dict to object
-    # u can pass it as Table :-D (I don't want making dict extra checking in
-    # f_operators)
-    m: type[Table | DeclarativeBase]
-    stmt: Select
-    wheres: list["SQLWhereType"] = dc_field(default_factory=list)
 
 
 # * FUNCS * #
@@ -161,7 +129,7 @@ class AlchemyBaseFilter(BaseFilter):
         # TODO: No model - any labeled fields filter
         ctx = FilterContext(model, stmt)
         op_map = self._get_filter2operator()
-        func_map = filters.func_map()
+        func_map = filters.func_map().get(self.filter_type, {})
         for field, value in filters.to_filter().items():
             key = KeyType(field)
             if (field, self.filter_type) in func_map:
@@ -171,7 +139,7 @@ class AlchemyBaseFilter(BaseFilter):
                     field,
                     filters,
                 )
-                continue  # TODO: Add logic
+                func_map[key.column_key][key.operator](ctx, key, value)
             elif key.operator in op_map:
                 op_map[key.operator](ctx, key, value)
         stmt = stmt.where(*ctx.wheres)

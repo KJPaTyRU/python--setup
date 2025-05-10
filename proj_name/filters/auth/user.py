@@ -1,5 +1,6 @@
 import datetime
-from proj_name.core.fastapi.filter.sqlalchemy import BaseFilterSchema
+
+from proj_name.core.fastapi.filter.base import BaseFilterSchema
 
 
 class UserFilter(BaseFilterSchema):

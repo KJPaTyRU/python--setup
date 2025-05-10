@@ -31,3 +31,6 @@ class Token(DbLogMixin, AuthBaseDbModel):
     )
 
     user: Mapped["User"] = relationship()
+
+    def __repr__(self):
+        return f"Token({self.id}, {self.log_time=})"

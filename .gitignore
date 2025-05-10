@@ -13,4 +13,4 @@ TODO.md
 .env
 
 # local dirs
-db/
+./db/

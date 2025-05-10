@@ -48,7 +48,7 @@ async def get_users(
     user: UserSession = Depends(get_active_superuser_dep),
     session: AsyncSession = Depends(db_session),
     crud: UserCrud = Depends(get_user_crud),
-    paginator: AlchemyBasePaginator = Depends(paginator1000),
+    paginator: AlchemyBasePaginator = Depends(paginator1000().from_query()),
     ordering: AlchOrderConsturctor = OrderingDepends(
         get_user_crud().get_ordering_meta()
     ),

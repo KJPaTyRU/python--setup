@@ -1,7 +1,10 @@
 from functools import cache
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from proj_name.core.fastapi.filter.sqlalchemy import AlchemFilterOpFunc
 
 
 class BaseFilterSchema(BaseModel):
@@ -18,8 +21,7 @@ class BaseFilterSchema(BaseModel):
         )
 
     @classmethod
-    @cache
-    def func_map(cls) -> dict[tuple[str, str], Callable]:
+    def func_map(cls) -> dict[str, dict[str, dict[str, "AlchemFilterOpFunc"]]]:
         """
         Returns:
             dict[tuple[str,str], Callable] - it's a dict with
